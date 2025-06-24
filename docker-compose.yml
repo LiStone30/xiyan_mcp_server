@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  xiyan-server:
+    image: image_mcp_server:1.0
+    container_name: docker_xiyan_mcp_server
+    working_dir: /app
+    environment:
+      - YML=/app/config.yml
+    volumes:
+      # - ./src/xiyan_mcp_server/config.yml:/app/config.yml
+      - ./src/xiyan_mcp_server:/app
+    ports:
+      - "8012:8012"
+    networks:
+      - mcp-network
+    
+    # command: ["python3", "/app/app.py"]
+    command: ["tail", "-f", "/dev/null"]
+    stdin_open: true  # docker run -i
+    tty: true         # docker run -t
+    restart: always
+
+  mcp-client:
+    image: image_mcp_client:1.0
+    container_name: docker_xiyan_mcp_client
+    working_dir: /app
+    depends_on:
+      - xiyan-server
+    volumes:
+      # - ./src/xiyan_mcp_server/config.yml:/app/config.yml
+      - ./src/mcp_client:/app
+    ports:
+      - "8013:8013"
+    networks:
+      - mcp-network
+    
+    # command: ["python3", "/app/app.py"]
+    command: ["tail", "-f", "/dev/null"]
+    stdin_open: true  # docker run -i
+    tty: true         # docker run -t
+    restart: always
+
+networks:
+  mcp-network:
+    driver: bridge

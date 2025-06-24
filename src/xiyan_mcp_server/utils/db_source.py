@@ -13,7 +13,7 @@ class HITLSQLDatabase(SQLDatabase):
                  ignore_tables: Optional[List[str]] = None, include_tables: Optional[List[str]] = None,
                  sample_rows_in_table_info: int = 3, indexes_in_table_info: bool = False,
                  custom_table_info: Optional[dict] = None, view_support: bool = False, max_string_length: int = 300,
-                 mschema: Optional[MSchema] = None, db_name: Optional[str] = ''):
+                 mschema: Optional[MSchema] = None, db_name: str = ''):
         super().__init__(engine, schema, metadata, ignore_tables, include_tables, sample_rows_in_table_info,
                          indexes_in_table_info, custom_table_info, view_support, max_string_length)
 
@@ -23,6 +23,7 @@ class HITLSQLDatabase(SQLDatabase):
         if mschema is not None:
             self._mschema = mschema
         else:
+            self._mschema = MSchema(db_id=db_name or "Anonymous", schema=schema)
             self._mschema = MSchema(db_id=db_name, schema=schema)
             self.init_mschema()
 
@@ -32,11 +33,11 @@ class HITLSQLDatabase(SQLDatabase):
         return self._mschema
 
     @property
-    def db_name(self) -> str:
+    def db_name(self) -> Optional[str]:
         """Return db_name"""
         return self._db_name
 
-    def get_pk_constraint(self, table_name: str) -> Dict:
+    def get_pk_constraint(self, table_name: str) -> List[str]:
         return self._inspector.get_pk_constraint(table_name, self._schema)['constrained_columns']
 
     def get_table_comment(self, table_name: str):
@@ -98,7 +99,7 @@ class HITLSQLDatabase(SQLDatabase):
                 columns = []
             return records, columns
 
-    def fetch_with_error_info(self, sql_query: str) -> Tuple[List, str]:
+    def fetch_with_error_info(self, sql_query: str) -> Tuple[Optional[Any], str]:
         info = ''
         sql_query = preprocess_sql_query(sql_query)
         with self._engine.begin() as connection:

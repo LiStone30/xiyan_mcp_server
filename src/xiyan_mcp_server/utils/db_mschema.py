@@ -57,7 +57,7 @@ class MSchema:
         except:
             return {}
 
-    def single_table_mschema(self, table_name: str, selected_columns: List = None,
+    def single_table_mschema(self, table_name: str, selected_columns: Optional[List] = None,
                              example_num=3, show_type_detail=False, shuffle=True) -> str:
         table_info = self.tables.get(table_name, {})
         output = []
@@ -128,7 +128,7 @@ class MSchema:
 
         return '\n'.join(output)
 
-    def to_mschema(self, selected_tables: List = None, selected_columns: List = None,
+    def to_mschema(self, selected_tables: Optional[List] = None, selected_columns: Optional[List] = None,
                    example_num=3, show_type_detail=False, shuffle=True) -> str:
         """
         convert to a MSchema string.
@@ -188,6 +188,16 @@ class MSchema:
 
     def load(self, file_path: str):
         data = read_json_file(file_path)
+        if data is None:
+            return
+        
+        # 确保 data 是字典类型
+        if isinstance(data, list) and len(data) > 0:
+            data = data[0]  # 取列表中的第一个元素作为字典
+        
+        if not isinstance(data, dict):
+            raise TypeError(f"Expected dict from read_json_file, got {type(data)}")
+        
         self.db_id = data.get("db_id", "Anonymous")
         self.schema = data.get("schema", None)
         self.tables = data.get("tables", {})

@@ -17,8 +17,12 @@ class DBConfig:
             self.db_path = self.db_path or 'book_1.sqlite'
         elif self.dialect in ['mysql', 'postgresql']:
             self.db_name = self.db_name or 'default_db'
-            self.user_name = quote_plus(self.user_name) or 'default_user'
-            self.db_pwd = quote_plus(self.db_pwd) or 'default_password'
+            self.user_name = self.user_name or 'default_user'
+            self.db_pwd = self.db_pwd or 'default_password'
+            if isinstance(self.user_name, str):
+                self.user_name = quote_plus(self.user_name)
+            if isinstance(self.db_pwd, str):
+                self.db_pwd = quote_plus(self.db_pwd)
             self.db_host = self.db_host or 'localhost'
             self.port = self.port or (3306 if self.dialect == 'mysql' else 5432)
         else:

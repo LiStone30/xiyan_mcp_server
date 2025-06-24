@@ -1,4 +1,4 @@
-from .utils.db_source import HITLSQLDatabase
+from utils.db_source import HITLSQLDatabase
 
 class DataBaseEnv:
     def __init__(self, database: HITLSQLDatabase):

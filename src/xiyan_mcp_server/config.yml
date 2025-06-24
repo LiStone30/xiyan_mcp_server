@@ -1,23 +1,19 @@
+
 model:
   name: "XGenerationLab/XiYanSQL-QwenCoder-32B-2412"
   key: "57fe18da-bf23-4e0a-855b-9f8bc675ba8d"   # key可从https://www.modelscope.cn/my/myaccesstoken 页面获取
   url: "https://api-inference.modelscope.cn/v1/"
 
 database:
-  host: "192.168.0.23"
+  host: "192.168.0.14"
   port: 3306
   user: "root"
   password: "123456"
   database: "ruoyi-vue-pro"
+  dialect: "mysql"
 
-# model:
-#   name: "pre-xiyan_multi_dialect_v3"
-#   key: ""
-#   url: "https://poc-dashscope.aliyuncs.com/compatible-mode/v1"
+mcp:
+  transport: "sse"
+  host: "0.0.0.0"
+  port: 8012
 
-# database:
-#   host: "localhost"
-#   port: 3306
-#   user: "root"
-#   password: ""
-#   database: ""

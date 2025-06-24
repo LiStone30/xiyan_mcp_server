@@ -48,12 +48,15 @@ def read_json_file(path, filter_func=None):
         return None
 
 
-def write_json_to_file(path: str, data: list, is_json_line: bool = False) -> None:
+def write_json_to_file(path: str, data, is_json_line: bool = False) -> None:
     valid_path(path)
     with open(path, 'w', encoding='utf-8') as f:
         if is_json_line:
-            for line in data:
-                f.write(json.dumps(line, ensure_ascii=False) + '\n')
+            if isinstance(data, list):
+                for line in data:
+                    f.write(json.dumps(line, ensure_ascii=False) + '\n')
+            else:
+                f.write(json.dumps(data, ensure_ascii=False) + '\n')
         else:
             f.write(json.dumps(data, ensure_ascii=False, indent=4))
 

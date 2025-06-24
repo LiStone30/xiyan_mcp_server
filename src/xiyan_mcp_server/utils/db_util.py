@@ -8,6 +8,8 @@ from .db_config import DBConfig
 
 def init_db_conn(db_config: DBConfig) -> Engine:
     if db_config.dialect.lower() == 'sqlite':
+        if db_config.db_path is None:
+            raise ValueError("db_path cannot be None for SQLite connection")
         return connect_to_sqlite(db_config.db_path)
     elif db_config.dialect.lower() == 'mysql':
         return connect_to_mysql(db_config.db_name, db_config.user_name, db_config.db_pwd, db_config.db_host, db_config.port)
