@@ -1,7 +1,8 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Pattern
+import re
 
 from llama_index.core import SQLDatabase
-from sqlalchemy import MetaData, Table, select, text
+from sqlalchemy import MetaData, Table, select, text, inspect
 from sqlalchemy.engine import Engine
 
 from .db_mschema import MSchema
@@ -11,14 +12,49 @@ from .db_util import examples_to_str, preprocess_sql_query
 class HITLSQLDatabase(SQLDatabase):
     def __init__(self, engine: Engine, schema: Optional[str] = None, metadata: Optional[MetaData] = None,
                  ignore_tables: Optional[List[str]] = None, include_tables: Optional[List[str]] = None,
-                 sample_rows_in_table_info: int = 3, indexes_in_table_info: bool = False,
-                 custom_table_info: Optional[dict] = None, view_support: bool = False, max_string_length: int = 300,
+                 table_pattern: Optional[str] = None, sample_rows_in_table_info: int = 3, 
+                 indexes_in_table_info: bool = False, custom_table_info: Optional[dict] = None, 
+                 view_support: bool = False, max_string_length: int = 300,
                  mschema: Optional[MSchema] = None, db_name: str = ''):
+        """
+        初始化HITLSQLDatabase
+        
+        Args:
+            engine: SQLAlchemy引擎
+            schema: 数据库schema
+            metadata: 元数据对象
+            ignore_tables: 要忽略的表名列表
+            include_tables: 要包含的表名列表
+            table_pattern: 表名匹配的正则表达式模式，如果提供，将覆盖include_tables
+            sample_rows_in_table_info: 表信息中的样本行数
+            indexes_in_table_info: 是否在表信息中包含索引
+            custom_table_info: 自定义表信息
+            view_support: 是否支持视图
+            max_string_length: 最大字符串长度
+            mschema: MSchema对象
+            db_name: 数据库名称
+        """
+        # 如果提供了正则表达式模式，使用它来过滤表名
+        if table_pattern is not None:
+            # 创建临时inspector获取所有表名
+            temp_inspector = inspect(engine)
+            all_tables = temp_inspector.get_table_names(schema=schema)
+            
+            # 编译正则表达式
+            pattern = re.compile(table_pattern)
+            
+            # 过滤符合正则表达式的表名
+            filtered_tables = [table for table in all_tables if pattern.match(table)]
+            
+            # 使用过滤后的表名作为include_tables
+            include_tables = filtered_tables
+        
+        # 调用父类初始化方法
         super().__init__(engine, schema, metadata, ignore_tables, include_tables, sample_rows_in_table_info,
                          indexes_in_table_info, custom_table_info, view_support, max_string_length)
 
         self._db_name = db_name
-        self._usable_tables = [table_name for table_name in self._usable_tables if self._inspector.has_table(table_name, schema)]
+        # self._usable_tables = [table_name for table_name in self._usable_tables if self._inspector.has_table(table_name, schema)]
         self._dialect = engine.dialect.name
         if mschema is not None:
             self._mschema = mschema

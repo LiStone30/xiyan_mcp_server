@@ -19,5 +19,11 @@ email = "godot.lzl@alibaba-inc.com"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv.workspace]
+members = [
+    "src/mcp_client",
+    "src/xiyan_mcp_server",
+]
+
 [project.scripts]
 mysql_mcp_server = "xiyan_mcp_server:main"

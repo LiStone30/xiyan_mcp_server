@@ -5,7 +5,7 @@ model:
   url: "https://api-inference.modelscope.cn/v1/"
 
 database:
-  host: "192.168.0.14"
+  host: "192.168.0.13"
   port: 3306
   user: "root"
   password: "123456"

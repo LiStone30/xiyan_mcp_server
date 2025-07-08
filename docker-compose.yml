@@ -2,14 +2,14 @@ version: '3'
 
 services:
   xiyan-server:
-    image: image_mcp_server:1.0
+    image: image_mcp_xiyan_server:1.1
     container_name: docker_xiyan_mcp_server
     working_dir: /app
     environment:
       - YML=/app/config.yml
     volumes:
-      # - ./src/xiyan_mcp_server/config.yml:/app/config.yml
       - ./src/xiyan_mcp_server:/app
+      - mcp_xiyan_server_venv:/app/.venv
     ports:
       - "8012:8012"
     networks:
@@ -22,14 +22,13 @@ services:
     restart: always
 
   mcp-client:
-    image: image_mcp_client:1.0
+    image: image_mcp_xiyan_client:1.1
     container_name: docker_xiyan_mcp_client
     working_dir: /app
-    depends_on:
-      - xiyan-server
     volumes:
       # - ./src/xiyan_mcp_server/config.yml:/app/config.yml
       - ./src/mcp_client:/app
+      - mcp_xiyan_clent_venv:/app/.venv
     ports:
       - "8013:8013"
     networks:
@@ -44,3 +43,7 @@ services:
 networks:
   mcp-network:
     driver: bridge
+  
+volumes:
+  mcp_xiyan_clent_venv:
+  mcp_xiyan_server_venv:
