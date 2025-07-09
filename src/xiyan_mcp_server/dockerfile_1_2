@@ -1,0 +1,81 @@
+# 基础镜像
+FROM nvidia/cuda:12.2.2-devel-ubuntu22.04 AS base
+
+# 设置非交互式安装
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 更新软件源并安装基础工具
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# 第二阶段：从官方uv镜像获取二进制文件和Python
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm AS uv-source
+
+# 第三阶段：构建最终镜像
+FROM base
+
+# 复制uv工具
+COPY --from=uv-source /usr/local/bin/uv /usr/local/bin/uv
+
+# 复制Python和相关文件
+COPY --from=uv-source /usr/local/bin/python* /usr/local/bin/
+COPY --from=uv-source /usr/local/bin/pip* /usr/local/bin/
+COPY --from=uv-source /usr/local/lib/python3.11 /usr/local/lib/python3.11
+COPY --from=uv-source /usr/local/include/python3.11 /usr/local/include/python3.11
+COPY --from=uv-source /usr/local/lib/libpython3.11.so* /usr/local/lib/
+
+# 复制pip相关的包和配置
+COPY --from=uv-source /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=uv-source /usr/local/lib/python3.11/dist-packages /usr/local/lib/python3.11/dist-packages
+
+# 更新动态链接库缓存
+RUN ldconfig
+
+# 验证pip安装
+RUN /usr/local/bin/pip --version
+
+# 安装构建工具和依赖库
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    cmake \
+    curl \
+    libcairo2-dev \
+    libgirepository1.0-dev \
+    git \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# 创建工作目录
+WORKDIR /app
+
+# 先只复制必要的配置文件
+COPY pyproject.toml ./
+# COPY uv.lock ./
+
+# 创建并激活虚拟环境
+RUN uv venv .venv --python=/usr/local/bin/python3.11
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+RUN uv pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cu121
+
+# 使用 uv 安装依赖，直接从 pyproject.toml 安装
+RUN uv pip install -e . && \
+    python -c "import sys; print(f'Python executable: {sys.executable}')" && \
+    ls -la /app/.venv/bin
+
+
+
+# 检查虚拟环境是否存在和正确激活
+RUN ls -la /app/.venv/bin && \
+    which python && \
+    python --version
+
+EXPOSE 8012
+
+# 清理缓存
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /root/.cache/pip/*

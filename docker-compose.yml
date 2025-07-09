@@ -2,20 +2,32 @@ version: '3'
 
 services:
   xiyan-server:
-    image: image_mcp_xiyan_server:1.1
+    image: image_mcp_xiyan_server:1.2
     container_name: docker_xiyan_mcp_server
     working_dir: /app
     environment:
-      - YML=/app/config.yml
+      - YML=/app/src/config.yml
     volumes:
-      - ./src/xiyan_mcp_server:/app
-      - mcp_xiyan_server_venv:/app/.venv
+      - ./src/xiyan_mcp_server/.vscode:/app/.vscode
+      - ./src/xiyan_mcp_server/src:/app/src
+      - ./src/xiyan_mcp_server/.python-version:/app/.python-version
+      - ./src/xiyan_mcp_server/pyproject.toml:/app/pyproject.toml
+      - ./src/xiyan_mcp_server/uv.lock:/app/uv.lock
+      - ./src/xiyan_mcp_server/README.md:/app/README.md
     ports:
       - "8012:8012"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     networks:
       - mcp-network
     
     # command: ["python3", "/app/app.py"]
+    # command: ["/app/.venv/bin/python", "/app/server.py"]
     command: ["tail", "-f", "/dev/null"]
     stdin_open: true  # docker run -i
     tty: true         # docker run -t
@@ -27,8 +39,13 @@ services:
     working_dir: /app
     volumes:
       # - ./src/xiyan_mcp_server/config.yml:/app/config.yml
-      - ./src/mcp_client:/app
-      - mcp_xiyan_clent_venv:/app/.venv
+      - ./src/mcp_client/.vscode:/app/.vscode
+      - ./src/mcp_client/src:/app/src
+      - ./src/mcp_client/.python-version:/app/.python-version
+      - ./src/mcp_client/pyproject.toml:/app/pyproject.toml
+      - ./src/mcp_client/uv.lock:/app/uv.lock
+      - ./src/mcp_client/README.md:/app/README.md
+      # - mcp_xiyan_clent_venv:/app/.venv
     ports:
       - "8013:8013"
     networks:
@@ -44,6 +61,6 @@ networks:
   mcp-network:
     driver: bridge
   
-volumes:
-  mcp_xiyan_clent_venv:
-  mcp_xiyan_server_venv:
+# volumes:
+#   mcp_xiyan_clent_venv:
+#   mcp_xiyan_server_venv:

@@ -5,14 +5,17 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "llama-index>=0.12.47",
-    "loguru>=0.7.3",
+    "accelerate>=1.8.1",
+    "flask>=3.1.1",
+    "llama-index-core>=0.12.47",
     "mcp>=1.10.1",
-    "mysql>=0.0.3",
+    "modelscope>=1.28.0",
     "mysql-connector-python>=9.3.0",
-    "openai>=1.93.1",
+    "openai>=1.93.2",
     "pandas>=2.3.1",
     "pymysql>=1.1.1",
     "pyyaml>=6.0.2",
     "sqlalchemy>=2.0.41",
+    "starlette>=0.47.1",
+    "transformers>=4.53.1",
 ]

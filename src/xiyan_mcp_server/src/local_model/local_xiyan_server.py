@@ -1,12 +1,28 @@
 from flask import Flask, request, jsonify
 from modelscope import AutoModelForCausalLM, AutoTokenizer
 import torch # require torch==2.2.2,accelerate>=0.26.0,numpy=2.2.3,modelscope
+import os
 
 
 model_name = 'XGenerationLab/XiYanSQL-QwenCoder-3B-2502'
-local_model = AutoModelForCausalLM.from_pretrained(model_name, device_map='cpu',
-                                                   torch_dtype=torch.float32)
-local_tokenizer = AutoTokenizer.from_pretrained(model_name)
+# 创建缓存目录（如果不存在）
+os.makedirs("/app/src/local_model/model", exist_ok=True)
+
+# 构建完整的本地模型路径
+local_model_path = "/app/src/local_model/model/XGenerationLab/XiYanSQL-QwenCoder-3B-2502"
+
+# 直接加载本地模型
+local_model = AutoModelForCausalLM.from_pretrained(
+    local_model_path,  # 使用本地路径代替模型ID
+    device_map='cuda:0',
+    torch_dtype=torch.float32,
+    local_files_only=True  # 确保只使用本地文件
+)
+
+local_tokenizer = AutoTokenizer.from_pretrained(
+    local_model_path,
+    local_files_only=True
+)
 app = Flask(__name__)
 
 @app.route('/chat/completions', methods=['POST'])
