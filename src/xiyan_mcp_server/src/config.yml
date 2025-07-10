@@ -2,7 +2,7 @@
 model:
   name: "XGenerationLab/XiYanSQL-QwenCoder-32B-2412"
   key: "57fe18da-bf23-4e0a-855b-9f8bc675ba8d"   # key可从https://www.modelscope.cn/my/myaccesstoken 页面获取
-  url: "https://api-inference.modelscope.cn/v1/"
+  url: "http://docker_xiyan_mcp_llm:8014/v1"
 
 database:
   host: "192.168.0.13"

@@ -2,7 +2,7 @@ version: '3'
 
 services:
   xiyan-server:
-    image: image_mcp_xiyan_server:1.2
+    image: image_mcp_xiyan_server:1.1
     container_name: docker_xiyan_mcp_server
     working_dir: /app
     environment:
@@ -16,6 +16,38 @@ services:
       - ./src/xiyan_mcp_server/README.md:/app/README.md
     ports:
       - "8012:8012"
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    networks:
+      - mcp-network
+    
+    # command: ["python3", "/app/app.py"]
+    # command: ["/app/.venv/bin/python", "/app/server.py"]
+    command: ["tail", "-f", "/dev/null"]
+    stdin_open: true  # docker run -i
+    tty: true         # docker run -t
+    restart: always
+
+  xiyan-llm:
+    image: image_mcp_xiyan_llm:1.0
+    container_name: docker_xiyan_mcp_llm
+    working_dir: /app
+    # environment:
+    #   - YML=/app/src/config.yml
+    volumes:
+      # - ./src/xiyan_llm/.vscode:/app/.vscode
+      - ./src/xiyan_llm/src:/app/src
+      - ./src/xiyan_llm/.python-version:/app/.python-version
+      - ./src/xiyan_llm/dockerfile:/app/dockerfile
+      - ./src/xiyan_llm/pyproject.toml:/app/pyproject.toml
+      - ./src/xiyan_llm/README.md:/app/README.md
+    ports:
+      - "8014:8014"
     deploy:
       resources:
         reservations:
@@ -32,6 +64,7 @@ services:
     stdin_open: true  # docker run -i
     tty: true         # docker run -t
     restart: always
+
 
   mcp-client:
     image: image_mcp_xiyan_client:1.1
