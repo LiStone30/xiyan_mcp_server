@@ -69,6 +69,7 @@ class ChatCompletionResponse(BaseModel):
 async def startup_event():
     global llm, tokenizer
     print(f"开始加载模型: {MODEL_PATH}")
+    gpu_mem_util = os.getenv("gpu_mem_util", 0.8)
     start_time = time.time()
     
     # 加载tokenizer以支持聊天模板
@@ -78,6 +79,7 @@ async def startup_event():
     llm = LLM(
         model=MODEL_PATH,
         tensor_parallel_size=1,
+        # gpu_memory_utilization=float(gpu_mem_util),
         trust_remote_code=True,
         dtype="float16",
     )

@@ -65,7 +65,6 @@ services:
     tty: true         # docker run -t
     restart: always
 
-
   mcp-client:
     image: image_mcp_xiyan_client:1.1
     container_name: docker_xiyan_mcp_client

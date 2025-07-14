@@ -118,17 +118,21 @@ def sql_gen_and_execute(db_env: DataBaseEnv, query: str):
     try:
         response = call_openai_sdk(**param)
         content = response.choices[0].message.content
+        logger.info(f"SQL generation response: {content}")
         sql_query = extract_sql_from_qwen(content)
+        logger.info(f"SQL query: {sql_query}")
         status, res = db_env.database.fetch(sql_query)
         if not status:
             for idx in range(3):
                 error_info = str(res)  # 将res转换为字符串
                 sql_query = sql_fix(db_env.dialect, db_env.mschema_str, query, sql_query, error_info)
+                logger.info(f"SQL query after fix: {sql_query}")
                 status, res = db_env.database.fetch(sql_query)
                 if status:
                     break
 
         sql_res = db_env.database.fetch_truncated(sql_query,max_rows=100)
+        logger.info(f"SQL result: {sql_res}")
         markdown_res = db_env.database.trunc_result_to_markdown(sql_res)
         logger.info(f"SQL query: {sql_query}\nSQL result: {sql_res}")
         return markdown_res.strip()
