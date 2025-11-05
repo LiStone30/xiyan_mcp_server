@@ -79,7 +79,7 @@ async def startup_event():
     llm = LLM(
         model=MODEL_PATH,
         tensor_parallel_size=1,
-        # gpu_memory_utilization=float(gpu_mem_util),
+        gpu_memory_utilization=float(gpu_mem_util),
         trust_remote_code=True,
         dtype="float16",
     )

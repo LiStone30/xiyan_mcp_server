@@ -15,7 +15,7 @@ DEFAULT_HOST = "docker_xiyan_mcp_server"  # 服务器主机名
 DEFAULT_PORT = 8012                       # 服务器端口
 DEFAULT_MODE = "tool"                     # 测试模式: tool, resource, health, all
 DEFAULT_TOOL = "get_data"                 # 要测试的工具名称
-DEFAULT_QUERY = "请简单介绍一下我们公司财务部的员工的基本信息"       # 查询语句
+DEFAULT_QUERY = "请简单介绍一下我们公司王鑫的基本信息"       # 查询语句
 DEFAULT_RESOURCE = "mysql://ruoyi-vue-pro"             # 要测试的资源URI
 
 async def test_tool(session, tool_name, **params):
